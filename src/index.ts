@@ -22,7 +22,8 @@ export default class Stellar {
 
   /**
    * Get Stellar public key for a given account index.
-   * @param accountIndex
+   *
+   * @param accountIndex It is part of key derivation path: m/44'/148'/accountIndex'.
    * @param boolDisplay If set to true, the public key will be displayed on the Ledger device and the user will be asked to confirm, otherwise it will not.
    * @returns an object with a publicKey and rawPublicKey.
    * @example
@@ -50,8 +51,8 @@ export default class Stellar {
   /**
    * Sign the given transaction.
    *
-   * @param accountIndex
-   * @param transaction
+   * @param accountIndex It is part of key derivation path: m/44'/148'/accountIndex'.
+   * @param transaction The transaction to sign. It consists of network id and transaction envelope, if you are using stellar-sdk, you can use transaction.signatureBase() to get the value.
    * @returns the signature
    */
   async signTransaction(
@@ -103,8 +104,8 @@ export default class Stellar {
    * It is intended for signing transactions not supported by the Ledger Stellar
    * app and should be avoided as much as possible.
    *
-   * @param accountIndex
-   * @param hash
+   * @param accountIndex It is part of key derivation path: m/44'/148'/accountIndex'.
+   * @param hash The hash to sign.
    * @returns the signature
    * @example
    * const result = stellar.signHash(0, "4b480b455a7ee154c33651819e3ce2ceb6bcd9dda78887777c4d2718c5cd04cd")
