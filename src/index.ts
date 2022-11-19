@@ -9,7 +9,7 @@ import { StrKey } from "stellar-base";
  * const stellar = new Stellar(transport)
  */
 export default class Stellar {
-  readonly transport: Transport;
+  private transport: Transport;
 
   constructor(transport: Transport, scrambleKey = "w0w") {
     this.transport = transport;
@@ -35,8 +35,7 @@ export default class Stellar {
     publicKey: string;
     rawPublicKey: Buffer;
   }> {
-    // TODO: check params
-    const paths = [0x80000000 + 44, 0x80000000 + 148, 0x80000000 + accountIndex];
+    const paths = getStellarPath(accountIndex);
     const buffer = Buffer.alloc(1 + paths.length * 4);
     buffer[0] = paths.length;
     paths.forEach((element, index) => {
@@ -61,11 +60,9 @@ export default class Stellar {
   ): Promise<{
     signature: Buffer;
   }> {
-    const paths = [0x80000000 + 44, 0x80000000 + 148, 0x80000000 + accountIndex];
-
+    const paths = getStellarPath(accountIndex);
     let response: Buffer | undefined;
     let offset = 0;
-
     while (offset !== transaction.length) {
       const isFirstChunk = offset === 0;
       const maxChunkSize = isFirstChunk ? 150 - 1 - paths.length * 4 : 150;
@@ -124,7 +121,7 @@ export default class Stellar {
     if (Buffer.byteLength(hash) !== 32) {
       throw new Error("hash must be 32 bytes");
     }
-    const paths = [0x80000000 + 44, 0x80000000 + 148, 0x80000000 + accountIndex];
+    const paths = getStellarPath(accountIndex);
     const buffer = Buffer.alloc(1 + paths.length * 4 + 32);
     buffer[0] = paths.length;
     paths.forEach((element, index) => {
@@ -153,4 +150,12 @@ export default class Stellar {
     const version = `${response[1]}.${response[2]}.${response[3]}`;
     return { version, hashSigningEnabled };
   }
+}
+
+function getStellarPath(accountIndex: number) {
+  if (accountIndex < 0 || accountIndex > 2 ** 32 - 1) {
+    throw new Error("Invalid account index");
+  }
+  const initValue = 0x80000000;
+  return [initValue + 44, initValue + 148, initValue + accountIndex];
 }
