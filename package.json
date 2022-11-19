@@ -34,6 +34,8 @@
   "author": "overcat",
   "license": "Apache-2.0",
   "devDependencies": {
+    "@ledgerhq/hw-transport": "^6.27.6",
+    "@ledgerhq/hw-transport-mocker": "^6.27.6",
     "@types/jest": "^29.2.3",
     "@types/node": "^18.11.9",
     "@typescript-eslint/eslint-plugin": "^5.43.0",
@@ -53,5 +55,10 @@
     "ts-node": "^10.9.1",
     "typescript": "^4.9.3"
   },
-  "dependencies": {}
+  "dependencies": {
+    "base32.js": "^0.1.0",
+    "sha.js": "^2.4.11",
+    "stellar-base": "^8.2.1",
+    "tweetnacl": "^1.0.3"
+  }
 }
