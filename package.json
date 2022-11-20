@@ -25,6 +25,12 @@
     "XLM",
     "Hardware Wallet"
   ],
+  "files": [
+    "build/*.js",
+    "build/*.d.ts",
+    "LICENSE",
+    "README.md"
+  ],
   "author": "overcat",
   "license": "Apache-2.0",
   "devDependencies": {
