@@ -1,6 +1,6 @@
 {
   "name": "ledger-stellar-sdk",
-  "version": "0.0.1-alpha.1",
+  "version": "0.0.1-alpha.2",
   "description": "Ledger Hardware Wallet Stellar JavaScript bindings.",
   "main": "build/index.js",
   "scripts": {
