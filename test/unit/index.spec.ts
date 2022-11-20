@@ -1,4 +1,5 @@
 import { openTransportReplayer, RecordStore } from "@ledgerhq/hw-transport-mocker";
+import assert from "assert";
 import {
   Operation,
   TransactionBuilder,
@@ -12,7 +13,7 @@ import Stellar from "../../src/index";
 
 describe("Stellar", () => {
   describe("getAppConfiguration", () => {
-    test("hash signing enabled", async () => {
+    it("hash signing enabled", async () => {
       const transport = await openTransportReplayer(
         RecordStore.fromString(`
         => e006000000
@@ -21,10 +22,10 @@ describe("Stellar", () => {
       );
       const stellar = new Stellar(transport);
       const result = await stellar.getAppConfiguration();
-      expect(result).toEqual({ hashSigningEnabled: true, version: "4.2.3" });
+      assert.deepStrictEqual(result, { hashSigningEnabled: true, version: "4.2.3" });
     });
 
-    test("hash signing not enabled", async () => {
+    it("hash signing not enabled", async () => {
       const transport = await openTransportReplayer(
         RecordStore.fromString(`
         => e006000000
@@ -33,12 +34,12 @@ describe("Stellar", () => {
       );
       const stellar = new Stellar(transport);
       const result = await stellar.getAppConfiguration();
-      expect(result).toEqual({ hashSigningEnabled: false, version: "4.2.3" });
+      assert.deepStrictEqual(result, { hashSigningEnabled: false, version: "4.2.3" });
     });
   });
 
   describe("getPublicKey", () => {
-    test("accountId = 0, not display", async () => {
+    it("accountId = 0, not display", async () => {
       const transport = await openTransportReplayer(
         RecordStore.fromString(`
         => e00200000d038000002c8000009480000000
@@ -48,13 +49,13 @@ describe("Stellar", () => {
       const expectPublicKey = "GDUTHCF37UX32EMANXIL2WOOVEDZ47GHBTT3DYKU6EKM37SOIZXM2FN7";
       const stellar = new Stellar(transport);
       const result = await stellar.getPublicKey(0);
-      expect(result).toEqual({
+      assert.deepStrictEqual(result, {
         publicKey: expectPublicKey,
         rawPublicKey: StrKey.decodeEd25519PublicKey(expectPublicKey)
       });
     });
 
-    test("accountId = 0, display", async () => {
+    it("accountId = 0, display", async () => {
       const transport = await openTransportReplayer(
         RecordStore.fromString(`
         => e00200010d038000002c8000009480000000
@@ -64,13 +65,13 @@ describe("Stellar", () => {
       const expectPublicKey = "GDUTHCF37UX32EMANXIL2WOOVEDZ47GHBTT3DYKU6EKM37SOIZXM2FN7";
       const stellar = new Stellar(transport);
       const result = await stellar.getPublicKey(0, true);
-      expect(result).toEqual({
+      assert.deepStrictEqual(result, {
         publicKey: expectPublicKey,
         rawPublicKey: StrKey.decodeEd25519PublicKey(expectPublicKey)
       });
     });
 
-    test("accountId = 4096, not display", async () => {
+    it("accountId = 4096, not display", async () => {
       const transport = await openTransportReplayer(
         RecordStore.fromString(`
         => e00200000d038000002c8000009480001000
@@ -80,13 +81,13 @@ describe("Stellar", () => {
       const expectPublicKey = "GDHZKY56SSJOASMYSSBUDFVIKL6CCQ2WPNPF2DXSNZQ5542V7BQHVZIL";
       const stellar = new Stellar(transport);
       const result = await stellar.getPublicKey(4096, false);
-      expect(result).toEqual({
+      assert.deepStrictEqual(result, {
         publicKey: expectPublicKey,
         rawPublicKey: StrKey.decodeEd25519PublicKey(expectPublicKey)
       });
     });
 
-    test("accountId = 4096, display", async () => {
+    it("accountId = 4096, display", async () => {
       const transport = await openTransportReplayer(
         RecordStore.fromString(`
         => e00200010d038000002c8000009480001000
@@ -96,7 +97,7 @@ describe("Stellar", () => {
       const expectPublicKey = "GDHZKY56SSJOASMYSSBUDFVIKL6CCQ2WPNPF2DXSNZQ5542V7BQHVZIL";
       const stellar = new Stellar(transport);
       const result = await stellar.getPublicKey(4096, true);
-      expect(result).toEqual({
+      assert.deepStrictEqual(result, {
         publicKey: expectPublicKey,
         rawPublicKey: StrKey.decodeEd25519PublicKey(expectPublicKey)
       });
@@ -104,7 +105,7 @@ describe("Stellar", () => {
   });
 
   describe("signHash", () => {
-    test("buffer hash, accountId = 0", async () => {
+    it("buffer hash, accountId = 0", async () => {
       const hash = "4b480b455a7ee154c33651819e3ce2ceb6bcd9dda78887777c4d2718c5cd04cd";
       const expectSignature =
         "WLCaR4HoduZIMBZCOaZ4QJYUIknJXe2/28CXPAC2f2NuKXMeOG5Q05fQ3xW91uI3Qk8jE33HvLyODaYK1MCoDQ==";
@@ -116,12 +117,12 @@ describe("Stellar", () => {
       );
       const stellar = new Stellar(transport);
       const result = await stellar.signHash(0, Buffer.from(hash, "hex"));
-      expect(result).toEqual({
+      assert.deepStrictEqual(result, {
         signature: Buffer.from(expectSignature, "base64")
       });
     });
 
-    test("string hash without 0x, accountId = 0", async () => {
+    it("string hash without 0x, accountId = 0", async () => {
       const kp = Keypair.fromSecret("SAIYWGGWU2WMXYDSK33UBQBMBDKU4TTJVY3ZIFF24H2KQDR7RQW5KAEK");
       const hash = "4b480b455a7ee154c33651819e3ce2ceb6bcd9dda78887777c4d2718c5cd04cd";
       const expectSignature = kp.sign(Buffer.from(hash, "hex"));
@@ -133,12 +134,12 @@ describe("Stellar", () => {
       );
       const stellar = new Stellar(transport);
       const result = await stellar.signHash(0, hash);
-      expect(result).toEqual({
+      assert.deepStrictEqual(result, {
         signature: expectSignature
       });
     });
 
-    test("string hash with 0x, accountId = 0", async () => {
+    it("string hash with 0x, accountId = 0", async () => {
       const kp = Keypair.fromSecret("SAIYWGGWU2WMXYDSK33UBQBMBDKU4TTJVY3ZIFF24H2KQDR7RQW5KAEK");
       const hash = "4b480b455a7ee154c33651819e3ce2ceb6bcd9dda78887777c4d2718c5cd04cd";
       const expectSignature = kp.sign(Buffer.from(hash, "hex"));
@@ -150,12 +151,12 @@ describe("Stellar", () => {
       );
       const stellar = new Stellar(transport);
       const result = await stellar.signHash(0, `0x${hash}`);
-      expect(result).toEqual({
+      assert.deepStrictEqual(result, {
         signature: expectSignature
       });
     });
 
-    test("buffer hash, accountId = 4096", async () => {
+    it("buffer hash, accountId = 4096", async () => {
       const kp = Keypair.fromSecret("SB7LNJMMBPXUA52FU7BUQKMQXEVMGNBNE67NBRYRLGD26LZ2GRJ46OEQ");
       const hash = "4b480b455a7ee154c33651819e3ce2ceb6bcd9dda78887777c4d2718c5cd04cd";
       const expectSignature = kp.sign(Buffer.from(hash, "hex"));
@@ -167,14 +168,14 @@ describe("Stellar", () => {
       );
       const stellar = new Stellar(transport);
       const result = await stellar.signHash(4096, Buffer.from(hash, "hex"));
-      expect(result).toEqual({
+      assert.deepStrictEqual(result, {
         signature: expectSignature
       });
     });
   });
 
   describe("signTransaction", () => {
-    test("only one chunk, accountId = 0", async () => {
+    it("only one chunk, accountId = 0", async () => {
       const kp = Keypair.fromSecret("SAIYWGGWU2WMXYDSK33UBQBMBDKU4TTJVY3ZIFF24H2KQDR7RQW5KAEK");
       const account = new Account(kp.publicKey(), "103720918407102567");
       const transaction = new TransactionBuilder(account, {
@@ -192,7 +193,7 @@ describe("Stellar", () => {
         )
         .build();
       const txBuffer = transaction.signatureBase();
-      expect(txBuffer.length).toBeLessThan(150 - 1 - 3 * 4); // max chunk size - 1 byte for path length - 3 * 4 bytes for path
+      assert.equal(true, 150 - 1 - 3 * 4 > txBuffer.length); // max chunk size - 1 byte for path length - 3 * 4 bytes for path
 
       const transport = await openTransportReplayer(
         RecordStore.fromString(`
@@ -202,12 +203,12 @@ describe("Stellar", () => {
       );
       const stellar = new Stellar(transport);
       const result = await stellar.signTransaction(0, txBuffer);
-      expect(result).toEqual({
+      assert.deepStrictEqual(result, {
         signature: kp.sign(transaction.hash())
       });
     });
 
-    test("only one chunk, accountId = 4096", async () => {
+    it("only one chunk, accountId = 4096", async () => {
       const kp = Keypair.fromSecret("SB7LNJMMBPXUA52FU7BUQKMQXEVMGNBNE67NBRYRLGD26LZ2GRJ46OEQ");
       const account = new Account(kp.publicKey(), "103720918407102567");
       const transaction = new TransactionBuilder(account, {
@@ -225,7 +226,7 @@ describe("Stellar", () => {
         )
         .build();
       const txBuffer = transaction.signatureBase();
-      expect(txBuffer.length).toBeLessThan(150 - 1 - 3 * 4); // max chunk size - 1 byte for path length - 3 * 4 bytes for path
+      assert.equal(true, 150 - 1 - 3 * 4 > txBuffer.length); // max chunk size - 1 byte for path length - 3 * 4 bytes for path
 
       const transport = await openTransportReplayer(
         RecordStore.fromString(`
@@ -235,11 +236,12 @@ describe("Stellar", () => {
       );
       const stellar = new Stellar(transport);
       const result = await stellar.signTransaction(4096, txBuffer);
-      expect(result).toEqual({
+      assert.deepStrictEqual(result, {
         signature: kp.sign(transaction.hash())
       });
     });
-    test("multiple chunks, accountId = 0", async () => {
+
+    it("multiple chunks, accountId = 0", async () => {
       const kp = Keypair.fromSecret("SAIYWGGWU2WMXYDSK33UBQBMBDKU4TTJVY3ZIFF24H2KQDR7RQW5KAEK");
       const account = new Account(kp.publicKey(), "103720918407102567");
       const transaction = new TransactionBuilder(account, {
@@ -282,7 +284,7 @@ describe("Stellar", () => {
         )
         .build();
       const txBuffer = transaction.signatureBase();
-      expect(txBuffer.length).toBeGreaterThan(150 - 1 - 3 * 4); // max chunk size - 1 byte for path length - 3 * 4 bytes for path
+      assert.equal(true, 150 - 1 - 3 * 4 < txBuffer.length); // max chunk size - 1 byte for path length - 3 * 4 bytes for path
 
       const transport = await openTransportReplayer(
         RecordStore.fromString(`
@@ -296,7 +298,7 @@ describe("Stellar", () => {
       );
       const stellar = new Stellar(transport);
       const result = await stellar.signTransaction(0, txBuffer);
-      expect(result).toEqual({
+      assert.deepStrictEqual(result, {
         signature: kp.sign(transaction.hash())
       });
     });

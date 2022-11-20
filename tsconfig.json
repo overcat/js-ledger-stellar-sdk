@@ -1,16 +1,20 @@
 {
   "compilerOptions": {
-    "target": "es5",
+    "target": "es2020",
     "module": "commonjs",
-    "lib": ["es6"],
-    "allowJs": true,
-    "outDir": "build",
-    "rootDir": "src",
     "strict": true,
-    "esModuleInterop": true,
-    "types": ["node", "jest"],
-    "skipLibCheck": true
+    "downlevelIteration": true,
+    "rootDirs": [
+      "./src",
+      "./test"
+    ],
+    "outDir": "./test-builds/tsc",
+    "noUnusedLocals": true,
+    "declaration": true,
+    "esModuleInterop": true
   },
-  "include": ["src/**/*"],
-  "exclude": ["src/**/*.spec.ts"]
+  "include": [
+    "src/**/*.ts",
+    "test/**/*.ts"
+  ]
 }
