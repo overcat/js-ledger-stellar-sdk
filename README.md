@@ -35,20 +35,12 @@ Ledger Hardware Wallet Stellar JavaScript bindings.
 
 **Kind**: global class
 
-- [JavaScript Ledger Stellar SDK](#javascript-ledger-stellar-sdk)
-  - [Installation](#installation)
-  - [API Documentation](#api-documentation)
-    - [Classes](#classes)
-    - [Typedefs](#typedefs)
-    - [Stellar](#stellar)
-      - [new Stellar(transport, [scrambleKey])](#new-stellartransport-scramblekey)
-      - [stellar.getPublicKey(accountIndex, [display]) ⇒ <code>PublicKey</code>](#stellargetpublickeyaccountindex-display--publickey)
-      - [stellar.signTransaction(accountIndex, transaction) ⇒ <code>Signature</code>](#stellarsigntransactionaccountindex-transaction--signature)
-      - [stellar.signHash(accountIndex, hash) ⇒ <code>Signature</code>](#stellarsignhashaccountindex-hash--signature)
-      - [stellar.getAppConfiguration() ⇒ <code>AppConfiguration</code>](#stellargetappconfiguration--appconfiguration)
-    - [Signature : <code>object</code>](#signature--object)
-    - [PublicKey : <code>object</code>](#publickey--object)
-    - [AppConfiguration : <code>object</code>](#appconfiguration--object)
+* [Stellar](#Stellar)
+    * [new Stellar(transport, [scrambleKey])](#new_Stellar_new)
+    * [.getPublicKey(accountIndex, [display])](#Stellar+getPublicKey) ⇒ [<code>PublicKey</code>](#PublicKey)
+    * [.signTransaction(accountIndex, transaction)](#Stellar+signTransaction) ⇒ [<code>Signature</code>](#Signature)
+    * [.signHash(accountIndex, hash)](#Stellar+signHash) ⇒ [<code>Signature</code>](#Signature)
+    * [.getAppConfiguration()](#Stellar+getAppConfiguration) ⇒ [<code>AppConfiguration</code>](#AppConfiguration)
 
 <a name="new_Stellar_new"></a>
 
