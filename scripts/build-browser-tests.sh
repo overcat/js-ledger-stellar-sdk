@@ -10,4 +10,4 @@ echo "Building tests with Browserify"
 npx browserify test-builds/tsc/test/unit/*.js > test-builds/browserify-build.js
 
 echo "Building tests with webpack"
-npx webpack -c ./scripts/webpack.config.browser.js --mode development ./test-builds/tsc/test/unit/*.js --output-path ./test-builds
+npx webpack -c ./test/webpack.config.js --mode development ./test-builds/tsc/test/unit/*.js --output-path ./test-builds
