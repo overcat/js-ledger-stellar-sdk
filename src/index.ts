@@ -3,7 +3,7 @@ import { base32 } from "@scure/base";
 import crc from "crc";
 
 /**
- * Ledger Hardware Wallet Stellar Application API.
+ * Ledger Hardware Wallet Stellar JavaScript bindings.
  *
  * @example
  * import Stellar from "ledger-stellar-sdk";
