@@ -17,7 +17,9 @@
     "browser-tests:test": "npm-run-all browser-tests:test-parcel browser-tests:test-browserify browser-tests:test-webpack",
     "browser-tests:test-parcel": "karma start --single-run --browsers ChromeHeadless test/karma.parcel.conf.js",
     "browser-tests:test-browserify": "karma start --single-run --browsers ChromeHeadless test/karma.browserify.conf.js",
-    "browser-tests:test-webpack": "karma start --single-run --browsers ChromeHeadless test/karma.webpack.conf.js"
+    "browser-tests:test-webpack": "karma start --single-run --browsers ChromeHeadless test/karma.webpack.conf.js",
+    "docs": "npm-run-all build docs:markdown",
+    "docs:markdown": "jsdoc2md -d 3 build/index.js"
   },
   "keywords": [
     "Ledger",
@@ -49,8 +51,9 @@
     "eslint": "^8.27.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-jest": "^27.1.5",
+    "eslint-plugin-jsdoc": "^39.6.2",
     "eslint-plugin-prettier": "^4.2.1",
-    "eslint-plugin-tsdoc": "^0.2.17",
+    "jsdoc-to-markdown": "^7.1.1",
     "karma": "^6.4.1",
     "karma-chrome-launcher": "^3.1.1",
     "karma-mocha": "^2.0.1",

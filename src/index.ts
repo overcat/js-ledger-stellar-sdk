@@ -3,15 +3,40 @@ import { base32 } from "@scure/base";
 import crc from "crc";
 
 /**
+ * @typedef {object} Signature
+ * @property {Buffer} signature - The signature
+ */
+
+/**
+ * @typedef {object} PublicKey
+ * @property {string} publicKey - Encoded public key
+ * @property {Buffer} rawPublicKey - Raw public key
+ */
+
+/**
+ * @typedef {object} AppConfiguration
+ * @property {string} version - The version of the Stellar app installed on the device
+ * @property {boolean} hashSigningEnabled - Whether hash signing is enabled
+ */
+
+/**
  * Ledger Hardware Wallet Stellar JavaScript bindings.
- *
- * @example
- * import Stellar from "ledger-stellar-sdk";
- * const stellar = new Stellar(transport)
  */
 export default class Stellar {
   private transport: Transport;
 
+  /**
+   * @param {Transport} transport - The Ledger transport to use
+   * @param {string} [scrambleKey=w0w] - A string that will be used to scramble the device communication
+   * @example
+   * ```typescript
+   * import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
+   * import LedgerStellarApi from "@ledgerhq/hw-app-stellar";
+   *
+   * const transport = await TransportWebUSB.create();
+   * const stellar = new LedgerStellarApi(transport);
+   * ```
+   */
   constructor(transport: Transport, scrambleKey = "w0w") {
     this.transport = transport;
     transport.decorateAppAPIMethods(
@@ -24,12 +49,11 @@ export default class Stellar {
   /**
    * Get Stellar public key for a given account index.
    *
-   * @param accountIndex - It is part of key derivation path: `m/44'/148'/accountIndex'`
-   * @param boolDisplay - If set to "true", the public key will be displayed on the Ledger device and the user will be asked to confirm, otherwise it will not
-   * @returns an object with a publicKey and rawPublicKey.
-   *
+   * @param {number} accountIndex - It is part of key derivation path: `m/44'/148'/accountIndex'`
+   * @param {boolean} [boolDisplay] - If set to "true", the public key will be displayed on the Ledger device and the user will be asked to confirm, otherwise it will not
+   * @returns {PublicKey} an object with a publicKey and rawPublicKey.
    * @example
-   * ```ts
+   * ```typescript
    * const response = stellar.getPublicKey(0, true)
    * ```
    */
@@ -55,9 +79,9 @@ export default class Stellar {
   /**
    * Sign the given transaction.
    *
-   * @param accountIndex - It is part of key derivation path: `m/44'/148'/accountIndex'`
-   * @param transaction - The transaction to sign. It consists of network id and transaction envelope, if you are using `stellar-sdk`, you can use `transaction.signatureBase()` to get the value
-   * @returns the signature
+   * @param {number} accountIndex - It is part of key derivation path: `m/44'/148'/accountIndex'`
+   * @param {Buffer} transaction - The transaction to sign. It consists of network id and transaction envelope, if you are using `stellar-sdk`, you can use `transaction.signatureBase()` to get the value
+   * @returns {Signature} the signature
    */
   async signTransaction(
     accountIndex: number,
@@ -108,12 +132,11 @@ export default class Stellar {
    * It is intended for signing transactions not supported by the Ledger Stellar
    * app and should be avoided as much as possible.
    *
-   * @param accountIndex - It is part of key derivation path: `m/44'/148'/accountIndex'`
-   * @param hash - The hash to sign
-   * @returns the signature
-   *
+   * @param {number} accountIndex - It is part of key derivation path: `m/44'/148'/accountIndex'`
+   * @param {string|Buffer} hash - The hash to sign
+   * @returns {Signature} the signature
    * @example
-   * ```ts
+   * ```typescript
    * const response = stellar.signHash(0, "4b480b455a7ee154c33651819e3ce2ceb6bcd9dda78887777c4d2718c5cd04cd")
    * ```
    */
@@ -145,10 +168,9 @@ export default class Stellar {
   /**
    * Get the configuration of the Ledger Stellar app installed on the hardware device.
    *
-   * @returns an object with the version and the flag to indicate whether hash signing is enabled
-   *
+   * @returns {AppConfiguration} an object with the version and the flag to indicate whether hash signing is enabled
    * @example
-   * ```ts
+   * ```typescript
    * const response = await stellar.getAppConfiguration();
    * ```
    */
@@ -163,6 +185,13 @@ export default class Stellar {
   }
 }
 
+/**
+ * Build a Stellar path.
+ *
+ * @private
+ * @param {number} accountIndex - It is part of key derivation path: `m/44'/148'/accountIndex'`
+ * @returns {Array<number>} the path
+ */
 function getStellarPath(accountIndex: number) {
   if (accountIndex < 0 || accountIndex > 2 ** 32 - 1) {
     throw new Error("Invalid account index");
@@ -171,13 +200,26 @@ function getStellarPath(accountIndex: number) {
   return [initValue + 44, initValue + 148, initValue + accountIndex];
 }
 
-// Computes the CRC16-XModem checksum of `payload` in little-endian order
+/**
+ * Computes the CRC16-XModem checksum of `payload` in little-endian order.
+ *
+ * @private
+ * @param {Buffer} payload - The payload to checksum
+ * @returns {Buffer} the checksum
+ */
 function calculateChecksum(payload: Buffer): Buffer {
   const checksum = Buffer.alloc(2);
   checksum.writeUInt16LE(crc.crc16xmodem(payload), 0);
   return checksum;
 }
 
+/**
+ * Encode a raw public key to a Stellar public key.
+ *
+ * @private
+ * @param {Buffer} data - The raw public key
+ * @returns {string} the Stellar public key
+ */
 function encodeEd25519PublicKey(data: Buffer): string {
   const versionByte = 6 << 3; // G (when encoded in base32)
   const versionBuffer = Buffer.from([versionByte]);
