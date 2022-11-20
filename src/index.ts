@@ -1,5 +1,6 @@
 import type Transport from "@ledgerhq/hw-transport";
-import { StrKey } from "stellar-base";
+import { base32 } from "@scure/base";
+import crc from "crc";
 
 /**
  * Ledger Hardware Wallet Stellar Application API.
@@ -47,7 +48,7 @@ export default class Stellar {
     });
     const response = await this.transport.send(0xe0, 0x02, 0x00, boolDisplay ? 0x01 : 0x00, buffer);
     const rawPublicKey = response.subarray(0, 32);
-    const publicKey = StrKey.encodeEd25519PublicKey(rawPublicKey);
+    const publicKey = encodeEd25519PublicKey(rawPublicKey);
     return { publicKey, rawPublicKey };
   }
 
@@ -168,4 +169,20 @@ function getStellarPath(accountIndex: number) {
   }
   const initValue = 0x80000000;
   return [initValue + 44, initValue + 148, initValue + accountIndex];
+}
+
+// Computes the CRC16-XModem checksum of `payload` in little-endian order
+function calculateChecksum(payload: Buffer): Buffer {
+  const checksum = Buffer.alloc(2);
+  checksum.writeUInt16LE(crc.crc16xmodem(payload), 0);
+  return checksum;
+}
+
+function encodeEd25519PublicKey(data: Buffer): string {
+  const versionByte = 6 << 3; // G (when encoded in base32)
+  const versionBuffer = Buffer.from([versionByte]);
+  const payload = Buffer.concat([versionBuffer, data]);
+  const checksum = calculateChecksum(payload);
+  const unencoded = Buffer.concat([payload, checksum]);
+  return base32.encode(unencoded);
 }
