@@ -31,7 +31,7 @@ export default class Stellar {
    * @example
    * ```typescript
    * import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
-   * import LedgerStellarApi from "@ledgerhq/hw-app-stellar";
+   * import LedgerStellarApi from "ledger-stellar-sdk";
    *
    * const transport = await TransportWebUSB.create();
    * const stellar = new LedgerStellarApi(transport);

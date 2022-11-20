@@ -1,5 +1,8 @@
 # JavaScript Ledger Stellar SDK
 
+![GitHub Workflow Status (branch)](https://img.shields.io/github/workflow/status/overcat/js-ledger-stellar-sdk/Main/main)
+![npm](https://img.shields.io/npm/v/ledger-stellar-sdk)
+
 Ledger Hardware Wallet Stellar JavaScript bindings.
 
 ## Installation
@@ -54,7 +57,7 @@ Ledger Hardware Wallet Stellar JavaScript bindings.
 **Example**
 ```typescript
 import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
-import LedgerStellarApi from "@ledgerhq/hw-app-stellar";
+import LedgerStellarApi from "ledger-stellar-sdk";
 
 const transport = await TransportWebUSB.create();
 const stellar = new LedgerStellarApi(transport);
