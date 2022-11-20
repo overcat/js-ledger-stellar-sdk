@@ -42,7 +42,7 @@ Ledger Hardware Wallet Stellar JavaScript bindings.
     - [Typedefs](#typedefs)
     - [Stellar](#stellar)
       - [new Stellar(transport, [scrambleKey])](#new-stellartransport-scramblekey)
-      - [stellar.getPublicKey(accountIndex, [boolDisplay]) ⇒ <code>PublicKey</code>](#stellargetpublickeyaccountindex-booldisplay--publickey)
+      - [stellar.getPublicKey(accountIndex, [display]) ⇒ <code>PublicKey</code>](#stellargetpublickeyaccountindex-display--publickey)
       - [stellar.signTransaction(accountIndex, transaction) ⇒ <code>Signature</code>](#stellarsigntransactionaccountindex-transaction--signature)
       - [stellar.signHash(accountIndex, hash) ⇒ <code>Signature</code>](#stellarsignhashaccountindex-hash--signature)
       - [stellar.getAppConfiguration() ⇒ <code>AppConfiguration</code>](#stellargetappconfiguration--appconfiguration)
@@ -69,16 +69,16 @@ const stellar = new LedgerStellarApi(transport);
 ```
 <a name="Stellar+getPublicKey"></a>
 
-#### stellar.getPublicKey(accountIndex, [boolDisplay]) ⇒ [<code>PublicKey</code>](#PublicKey)
+#### stellar.getPublicKey(accountIndex, [display]) ⇒ [<code>PublicKey</code>](#PublicKey)
 Get Stellar public key for a given account index.
 
 **Kind**: instance method of [<code>Stellar</code>](#Stellar)
 **Returns**: [<code>PublicKey</code>](#PublicKey) - an object with a publicKey and rawPublicKey.
 
-| Param | Type | Description |
-| --- | --- | --- |
-| accountIndex | <code>number</code> | It is part of key derivation path: `m/44'/148'/accountIndex'` |
-| [boolDisplay] | <code>boolean</code> | If set to "true", the public key will be displayed on the Ledger device and the user will be asked to confirm, otherwise it will not |
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| accountIndex | <code>number</code> |  | It is part of key derivation path: `m/44'/148'/accountIndex'` |
+| [display] | <code>boolean</code> | <code>false</code> | If set to "true", the public key will be displayed on the Ledger device and the user will be asked to confirm, otherwise it will not |
 
 **Example**
 ```typescript

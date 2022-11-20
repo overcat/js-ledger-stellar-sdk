@@ -50,7 +50,7 @@ export default class Stellar {
    * Get Stellar public key for a given account index.
    *
    * @param {number} accountIndex - It is part of key derivation path: `m/44'/148'/accountIndex'`
-   * @param {boolean} [boolDisplay] - If set to "true", the public key will be displayed on the Ledger device and the user will be asked to confirm, otherwise it will not
+   * @param {boolean} [display=false] - If set to "true", the public key will be displayed on the Ledger device and the user will be asked to confirm, otherwise it will not
    * @returns {PublicKey} an object with a publicKey and rawPublicKey.
    * @example
    * ```typescript
@@ -59,7 +59,7 @@ export default class Stellar {
    */
   async getPublicKey(
     accountIndex: number,
-    boolDisplay?: boolean
+    display = false
   ): Promise<{
     publicKey: string;
     rawPublicKey: Buffer;
@@ -70,7 +70,7 @@ export default class Stellar {
     paths.forEach((element, index) => {
       buffer.writeUInt32BE(element, 1 + 4 * index);
     });
-    const response = await this.transport.send(0xe0, 0x02, 0x00, boolDisplay ? 0x01 : 0x00, buffer);
+    const response = await this.transport.send(0xe0, 0x02, 0x00, display ? 0x01 : 0x00, buffer);
     const rawPublicKey = response.subarray(0, 32);
     const publicKey = encodeEd25519PublicKey(rawPublicKey);
     return { publicKey, rawPublicKey };
