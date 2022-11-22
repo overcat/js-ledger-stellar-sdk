@@ -2,6 +2,29 @@ import type Transport from "@ledgerhq/hw-transport";
 import { base32 } from "@scure/base";
 import crc from "crc";
 
+const CLA = 0xe0;
+
+const P1 = {
+  NONE: 0x00,
+  FIRST_APDU: 0x00,
+  MORE_APDU: 0x80
+};
+
+const P2 = {
+  NONE: 0x00,
+  NON_CONFIRM: 0x00,
+  CONFIRM: 0x01,
+  LAST_APDU: 0x00,
+  MORE_APDU: 0x80
+};
+
+enum Ins {
+  GET_PK = 0x02,
+  SIGN_TX = 0x04,
+  GET_CONF = 0x06,
+  SIGN_TX_HASH = 0x08
+}
+
 /**
  * @typedef {object} Signature
  * @property {Buffer} signature - The signature
@@ -70,7 +93,13 @@ export default class Stellar {
     paths.forEach((element, index) => {
       buffer.writeUInt32BE(element, 1 + 4 * index);
     });
-    const response = await this.transport.send(0xe0, 0x02, 0x00, display ? 0x01 : 0x00, buffer);
+    const response = await this.transport.send(
+      CLA,
+      Ins.GET_PK,
+      P1.NONE,
+      display ? P2.CONFIRM : P2.NON_CONFIRM,
+      buffer
+    );
     const rawPublicKey = response.subarray(0, 32);
     const publicKey = encodeEd25519PublicKey(rawPublicKey);
     return { publicKey, rawPublicKey };
@@ -109,10 +138,10 @@ export default class Stellar {
       }
       const isLastChunk = offset + chunkSize === transaction.length;
       response = await this.transport.send(
-        0xe0,
-        0x04,
-        isFirstChunk ? 0x00 : 0x80,
-        isLastChunk ? 0x00 : 0x80,
+        CLA,
+        Ins.SIGN_TX,
+        isFirstChunk ? P1.FIRST_APDU : P1.MORE_APDU,
+        isLastChunk ? P2.LAST_APDU : P2.MORE_APDU,
         buffer
       );
       offset += chunkSize;
@@ -160,7 +189,7 @@ export default class Stellar {
     });
     const offset = 1 + 4 * paths.length;
     hash.copy(buffer, offset);
-    const response = await this.transport.send(0xe0, 0x08, 0x00, 0x00, buffer);
+    const response = await this.transport.send(CLA, Ins.SIGN_TX_HASH, P1.NONE, P2.NONE, buffer);
     const signature = response.subarray(0, 64);
     return { signature };
   }
@@ -178,7 +207,7 @@ export default class Stellar {
     readonly version: string;
     readonly hashSigningEnabled: boolean;
   }> {
-    const response = await this.transport.send(0xe0, 0x06, 0x00, 0x00);
+    const response = await this.transport.send(CLA, Ins.GET_CONF, P1.NONE, P2.NONE);
     const hashSigningEnabled = response[0] === 1;
     const version = `${response[1]}.${response[2]}.${response[3]}`;
     return { version, hashSigningEnabled };
