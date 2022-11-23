@@ -1,6 +1,7 @@
 import type Transport from "@ledgerhq/hw-transport";
 import { base32 } from "@scure/base";
 import crc from "crc";
+import { createCustomErrorClass, UserRefusedOnDevice } from "@ledgerhq/errors";
 
 const CLA = 0xe0;
 
@@ -24,6 +25,49 @@ enum Ins {
   GET_CONF = 0x06,
   SIGN_TX_HASH = 0x08
 }
+
+/**
+ * This error is thrown when hash signing mode is not enabled.
+ *
+ * @constant {object}
+ */
+export const HashSigningModeNotEnabledError = createCustomErrorClass(
+  "HashSigningModeNotEnabledError"
+);
+
+/**
+ * This error is thrown when the transaction contains unsupported Stellar operation(s).
+ *
+ * @constant {object}
+ */
+export const UnknownStellarOperationTypeError = createCustomErrorClass(
+  "UnknownStellarOperationTypeError"
+);
+
+/**
+ * This error will be thrown when the transaction type is not supported.
+ *
+ * @constant {object}
+ */
+export const UnknownStellarTransactionEnvelopeTypeError = createCustomErrorClass(
+  "UnknownStellarTransactionEnvelopeTypeError"
+);
+
+/**
+ * This error is thrown when parsing the transaction fails.
+ *
+ * @constant {object}
+ */
+export const ParseStellarTransactionFailedError = createCustomErrorClass(
+  "ParseStellarTransactionFailedError"
+);
+
+/**
+ * This error is thrown when the user rejects the request.
+ *
+ * @constant {object}
+ */
+export const UserRefusedOnDeviceError = UserRefusedOnDevice;
 
 /**
  * @typedef {object} Signature
@@ -93,7 +137,7 @@ export default class Stellar {
     paths.forEach((element, index) => {
       buffer.writeUInt32BE(element, 1 + 4 * index);
     });
-    const response = await this.transport.send(
+    const response = await this.sendRequest(
       CLA,
       Ins.GET_PK,
       P1.NONE,
@@ -137,7 +181,7 @@ export default class Stellar {
         transaction.copy(buffer, 0, offset, offset + chunkSize);
       }
       const isLastChunk = offset + chunkSize === transaction.length;
-      response = await this.transport.send(
+      response = await this.sendRequest(
         CLA,
         Ins.SIGN_TX,
         isFirstChunk ? P1.FIRST_APDU : P1.MORE_APDU,
@@ -189,7 +233,7 @@ export default class Stellar {
     });
     const offset = 1 + 4 * paths.length;
     hash.copy(buffer, offset);
-    const response = await this.transport.send(CLA, Ins.SIGN_TX_HASH, P1.NONE, P2.NONE, buffer);
+    const response = await this.sendRequest(CLA, Ins.SIGN_TX_HASH, P1.NONE, P2.NONE, buffer);
     const signature = response.subarray(0, 64);
     return { signature };
   }
@@ -207,10 +251,24 @@ export default class Stellar {
     readonly version: string;
     readonly hashSigningEnabled: boolean;
   }> {
-    const response = await this.transport.send(CLA, Ins.GET_CONF, P1.NONE, P2.NONE);
+    const response = await this.sendRequest(CLA, Ins.GET_CONF, P1.NONE, P2.NONE);
     const hashSigningEnabled = response[0] === 1;
     const version = `${response[1]}.${response[2]}.${response[3]}`;
     return { version, hashSigningEnabled };
+  }
+
+  private async sendRequest(
+    cla: number,
+    ins: number,
+    p1: number,
+    p2: number,
+    data: Buffer = Buffer.alloc(0)
+  ): Promise<Buffer> {
+    try {
+      return await this.transport.send(cla, ins, p1, p2, data);
+    } catch (e) {
+      throw remapTransactionRelatedErrors(e);
+    }
   }
 }
 
@@ -256,4 +314,42 @@ function encodeEd25519PublicKey(data: Buffer): string {
   const checksum = calculateChecksum(payload);
   const unencoded = Buffer.concat([payload, checksum]);
   return base32.encode(unencoded);
+}
+
+/**
+ * @private
+ * @param {any} e - The error to remap
+ * @returns {any} - the remapped error
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function remapTransactionRelatedErrors(e: any) {
+  if (e) {
+    if (e.statusCode === 0x6985) {
+      // SW_DENY
+      return new UserRefusedOnDeviceError("The request was rejected by the user.");
+    }
+    if (e.statusCode === 0x6c24) {
+      // SW_UNKNOWN_OP
+      return new UnknownStellarOperationTypeError(
+        "Transaction contains unsupported Stellar operations, please try upgrading stellar-app, or report this issue."
+      );
+    }
+    if (e.statusCode === 0x6c25) {
+      // SW_UNKNOWN_ENVELOPE_TYPE
+      return new UnknownStellarTransactionEnvelopeTypeError(
+        "Unknown transaction type, please try upgrading stellar-app, or report this issue."
+      );
+    }
+    if (e.statusCode === 0x6c66) {
+      // SW_TX_HASH_SIGNING_MODE_NOT_ENABLED
+      return new HashSigningModeNotEnabledError("Hash signing not enabled.");
+    }
+    if (e.statusCode === 0xb005) {
+      // SW_TX_PARSING_FAIL
+      return new ParseStellarTransactionFailedError(
+        "Parsing transaction failed, please check that the transaction is correct, or report this issue."
+      );
+    }
+  }
+  return e;
 }

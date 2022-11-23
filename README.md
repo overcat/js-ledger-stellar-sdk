@@ -20,6 +20,26 @@ npm install ledger-stellar-sdk
 </dd>
 </dl>
 
+### Constants
+
+<dl>
+<dt><a href="#HashSigningModeNotEnabledError">HashSigningModeNotEnabledError</a> : <code>object</code></dt>
+<dd><p>This error is thrown when hash signing mode is not enabled.</p>
+</dd>
+<dt><a href="#UnknownStellarOperationTypeError">UnknownStellarOperationTypeError</a> : <code>object</code></dt>
+<dd><p>This error is thrown when the transaction contains unsupported Stellar operation(s).</p>
+</dd>
+<dt><a href="#UnknownStellarTransactionEnvelopeTypeError">UnknownStellarTransactionEnvelopeTypeError</a> : <code>object</code></dt>
+<dd><p>This error will be thrown when the transaction type is not supported.</p>
+</dd>
+<dt><a href="#ParseStellarTransactionFailedError">ParseStellarTransactionFailedError</a> : <code>object</code></dt>
+<dd><p>This error is thrown when parsing the transaction fails.</p>
+</dd>
+<dt><a href="#UserRefusedOnDeviceError">UserRefusedOnDeviceError</a> : <code>object</code></dt>
+<dd><p>This error is thrown when the user rejects the request.</p>
+</dd>
+</dl>
+
 ### Typedefs
 
 <dl>
@@ -123,6 +143,36 @@ Get the configuration of the Ledger Stellar app installed on the hardware device
 ```typescript
 const response = await stellar.getAppConfiguration();
 ```
+<a name="HashSigningModeNotEnabledError"></a>
+
+### HashSigningModeNotEnabledError : <code>object</code>
+This error is thrown when hash signing mode is not enabled.
+
+**Kind**: global constant
+<a name="UnknownStellarOperationTypeError"></a>
+
+### UnknownStellarOperationTypeError : <code>object</code>
+This error is thrown when the transaction contains unsupported Stellar operation(s).
+
+**Kind**: global constant
+<a name="UnknownStellarTransactionEnvelopeTypeError"></a>
+
+### UnknownStellarTransactionEnvelopeTypeError : <code>object</code>
+This error will be thrown when the transaction type is not supported.
+
+**Kind**: global constant
+<a name="ParseStellarTransactionFailedError"></a>
+
+### ParseStellarTransactionFailedError : <code>object</code>
+This error is thrown when parsing the transaction fails.
+
+**Kind**: global constant
+<a name="UserRefusedOnDeviceError"></a>
+
+### UserRefusedOnDeviceError : <code>object</code>
+This error is thrown when the user rejects the request.
+
+**Kind**: global constant
 <a name="Signature"></a>
 
 ### Signature : <code>object</code>
