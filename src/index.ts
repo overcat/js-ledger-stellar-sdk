@@ -1,7 +1,8 @@
 import type Transport from "@ledgerhq/hw-transport";
 import { base32 } from "@scure/base";
 import crc from "crc";
-import { createCustomErrorClass, UserRefusedOnDevice } from "@ledgerhq/errors";
+import { createCustomErrorClass } from "@ledgerhq/errors";
+import { LedgerErrorConstructor } from "@ledgerhq/errors/lib/helpers";
 
 const CLA = 0xe0;
 
@@ -27,47 +28,68 @@ enum Ins {
 }
 
 /**
+ * Enum for stellar-app response status codes.
+ *
+ * @enum {number}
+ */
+export enum StatusCode {
+  UNKNOWN_STELLAR_OP = 0x6c24,
+  UNKNOWN_ENVELOPE_TYPE = 0x6c25,
+  TX_HASH_SIGNING_MODE_NOT_ENABLED = 0x6c66,
+  TX_PARSING_FAIL = 0xb005
+}
+
+/**
+ * Enum for stellar-app response status texts.
+ *
+ * @enum {string}
+ */
+export enum StatusText {
+  UNKNOWN_STELLAR_OP = "UNKNOWN_STELLAR_OP",
+  UNKNOWN_ENVELOPE_TYPE = "UNKNOWN_ENVELOPE_TYPE",
+  TX_HASH_SIGNING_MODE_NOT_ENABLED = "TX_HASH_SIGNING_MODE_NOT_ENABLED",
+  TX_PARSING_FAIL = "TX_PARSING_FAIL"
+}
+
+/**
  * This error is thrown when hash signing mode is not enabled.
  *
  * @constant {object}
  */
-export const HashSigningModeNotEnabledError = createCustomErrorClass(
-  "HashSigningModeNotEnabledError"
-);
+export const HashSigningModeNotEnabledError = createCustomErrorClass<
+  { statusCode: number; statusText: string },
+  LedgerErrorConstructor<{ statusCode: number; statusText: string }>
+>("HashSigningModeNotEnabledError");
 
 /**
  * This error is thrown when the transaction contains unsupported Stellar operation(s).
  *
  * @constant {object}
  */
-export const UnknownStellarOperationTypeError = createCustomErrorClass(
-  "UnknownStellarOperationTypeError"
-);
+export const UnknownStellarOperationTypeError = createCustomErrorClass<
+  { statusCode: number; statusText: string },
+  LedgerErrorConstructor<{ statusCode: number; statusText: string }>
+>("UnknownStellarOperationTypeError");
 
 /**
  * This error will be thrown when the transaction type is not supported.
  *
  * @constant {object}
  */
-export const UnknownStellarTransactionEnvelopeTypeError = createCustomErrorClass(
-  "UnknownStellarTransactionEnvelopeTypeError"
-);
+export const UnknownStellarTransactionEnvelopeTypeError = createCustomErrorClass<
+  { statusCode: number; statusText: string },
+  LedgerErrorConstructor<{ statusCode: number; statusText: string }>
+>("UnknownStellarTransactionEnvelopeTypeError");
 
 /**
  * This error is thrown when parsing the transaction fails.
  *
  * @constant {object}
  */
-export const ParseStellarTransactionFailedError = createCustomErrorClass(
-  "ParseStellarTransactionFailedError"
-);
-
-/**
- * This error is thrown when the user rejects the request.
- *
- * @constant {object}
- */
-export const UserRefusedOnDeviceError = UserRefusedOnDevice;
+export const ParseStellarTransactionFailedError = createCustomErrorClass<
+  { statusCode: number; statusText: string },
+  LedgerErrorConstructor<{ statusCode: number; statusText: string }>
+>("ParseStellarTransactionFailedError");
 
 /**
  * @typedef {object} Signature
@@ -324,30 +346,28 @@ function encodeEd25519PublicKey(data: Buffer): string {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function remapTransactionRelatedErrors(e: any) {
   if (e) {
-    if (e.statusCode === 0x6985) {
-      // SW_DENY
-      return new UserRefusedOnDeviceError("The request was rejected by the user.");
-    }
-    if (e.statusCode === 0x6c24) {
-      // SW_UNKNOWN_OP
+    if (e.statusCode === StatusCode.UNKNOWN_STELLAR_OP) {
       return new UnknownStellarOperationTypeError(
-        "Transaction contains unsupported Stellar operations, please try upgrading stellar-app, or report this issue."
+        "Transaction contains unsupported Stellar operations, please try upgrading stellar-app, or report this issue.",
+        { statusCode: e.statusCode, statusText: e.statusText }
       );
     }
-    if (e.statusCode === 0x6c25) {
-      // SW_UNKNOWN_ENVELOPE_TYPE
+    if (e.statusCode === StatusCode.UNKNOWN_ENVELOPE_TYPE) {
       return new UnknownStellarTransactionEnvelopeTypeError(
-        "Unknown transaction type, please try upgrading stellar-app, or report this issue."
+        "Unknown transaction type, please try upgrading stellar-app, or report this issue.",
+        { statusCode: e.statusCode, statusText: e.statusText }
       );
     }
-    if (e.statusCode === 0x6c66) {
-      // SW_TX_HASH_SIGNING_MODE_NOT_ENABLED
-      return new HashSigningModeNotEnabledError("Hash signing not enabled.");
+    if (e.statusCode === StatusCode.TX_HASH_SIGNING_MODE_NOT_ENABLED) {
+      return new HashSigningModeNotEnabledError("Hash signing not enabled.", {
+        statusCode: e.statusCode,
+        statusText: e.statusText
+      });
     }
-    if (e.statusCode === 0xb005) {
-      // SW_TX_PARSING_FAIL
+    if (e.statusCode === StatusCode.TX_PARSING_FAIL) {
       return new ParseStellarTransactionFailedError(
-        "Parsing transaction failed, please check that the transaction is correct, or report this issue."
+        "Parsing transaction failed, please check that the transaction is correct, or report this issue.",
+        { statusCode: e.statusCode, statusText: e.statusText }
       );
     }
   }

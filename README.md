@@ -35,9 +35,6 @@ npm install ledger-stellar-sdk
 <dt><a href="#ParseStellarTransactionFailedError">ParseStellarTransactionFailedError</a> : <code>object</code></dt>
 <dd><p>This error is thrown when parsing the transaction fails.</p>
 </dd>
-<dt><a href="#UserRefusedOnDeviceError">UserRefusedOnDeviceError</a> : <code>object</code></dt>
-<dd><p>This error is thrown when the user rejects the request.</p>
-</dd>
 </dl>
 
 ### Typedefs
@@ -143,6 +140,18 @@ Get the configuration of the Ledger Stellar app installed on the hardware device
 ```typescript
 const response = await stellar.getAppConfiguration();
 ```
+<a name="StatusCode"></a>
+
+### StatusCode : <code>enum</code>
+Enum for stellar-app response status codes.
+
+**Kind**: global enum
+<a name="StatusText"></a>
+
+### StatusText : <code>enum</code>
+Enum for stellar-app response status texts.
+
+**Kind**: global enum
 <a name="HashSigningModeNotEnabledError"></a>
 
 ### HashSigningModeNotEnabledError : <code>object</code>
@@ -165,12 +174,6 @@ This error will be thrown when the transaction type is not supported.
 
 ### ParseStellarTransactionFailedError : <code>object</code>
 This error is thrown when parsing the transaction fails.
-
-**Kind**: global constant
-<a name="UserRefusedOnDeviceError"></a>
-
-### UserRefusedOnDeviceError : <code>object</code>
-This error is thrown when the user rejects the request.
 
 **Kind**: global constant
 <a name="Signature"></a>
