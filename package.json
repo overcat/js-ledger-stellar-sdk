@@ -48,7 +48,7 @@
     "assert": "^2.0.0",
     "browserify": "^17.0.0",
     "buffer": "^6.0.3",
-    "eslint": "^8.27.0",
+    "eslint": "^9.2.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-jest": "^27.1.5",
     "eslint-plugin-jsdoc": "^39.6.2",
